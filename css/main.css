@@ -56,6 +56,17 @@ a {
     text-decoration: none;
 }
 
+/* Inline field errors */
+.input.invalid {
+    border-color: #e63946 !important;
+    box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.15);
+}
+.error-text {
+    color: #e63946;
+    font-size: 13px;
+    margin: 6px 2px 0;
+}
+
 .container {
     padding-left: 15px;
     padding-right: 15px;
@@ -382,6 +393,70 @@ a {
     animation: bouncing 1.5s infinite;
 }
 
+/* Success Toast Notification */
+.toast-notification {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, #ffffff, #f5fbff);
+    color: #123;
+    border: 1px solid #cfe8ff;
+    border-left: 6px solid var(--main-color);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    z-index: 2000;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+.toast-notification.hide {
+    transform: translateY(10px);
+    opacity: 0;
+}
+.toast-notification .toast-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e8f5ff;
+    display: grid;
+    place-items: center;
+    color: #2a9d8f;
+    flex-shrink: 0;
+}
+.toast-notification .toast-icon i {
+    color: #2a9d8f;
+    font-size: 18px;
+}
+.toast-notification .toast-body {
+    display: grid;
+    gap: 2px;
+}
+.toast-notification .toast-title {
+    font-weight: 700;
+    font-size: 15px;
+}
+.toast-notification .toast-message {
+    font-size: 13px;
+    color: var(--paragraph-color);
+}
+.toast-notification .toast-close {
+    margin-left: 8px;
+    border: none;
+    background: transparent;
+    color: #5c6b7a;
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+}
+
 
 /* Articles */
 
@@ -393,6 +468,7 @@ a {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 35px;
+    justify-content: center;
 }
 
 .articles .container .box {
@@ -401,6 +477,8 @@ a {
     background-color: white;
     overflow: hidden;
     transition: var(--main-transition);
+    display: flex;
+    flex-direction: column;
 }
 
 .articles .container .box:hover {
@@ -414,6 +492,7 @@ a {
 
 .articles .container .box .content {
     padding: 10px 10px 10px 15px;
+    flex-grow: 1;
 }
 
 .articles .container .box .content h3 {
@@ -458,6 +537,7 @@ a {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 35px;
+    justify-content: center;
 }
 
 .gallery .container .box {
@@ -509,6 +589,7 @@ a {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 35px;
+    justify-content: center;
 }
 
 .features .container .box {
@@ -651,6 +732,7 @@ a {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 40px;
+    justify-content: center;
 }
 
 .testimonials .box {
@@ -702,6 +784,7 @@ a {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 60px;
+    justify-content: center;
 }
 
 .team .box {
@@ -807,6 +890,7 @@ a {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 35px;
+    justify-content: center;
 }
 
 .services .box {
@@ -1253,6 +1337,7 @@ a {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 30px;
+    justify-content: center;
 }
 
 .pricing .box {
@@ -1513,6 +1598,7 @@ a {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
     position: relative;
+    justify-content: center;
 }
 
 .stats .box {
@@ -1618,7 +1704,7 @@ a {
 .discount .form .input {
     display: block;
     width: 100%;
-    margin-bottom: 30px;
+    margin-top: 30px;
     padding: 15px;
     border: none;
     border-bottom: 1px solid #ccc;
@@ -1646,6 +1732,7 @@ a {
     font-size: 20px;
     cursor: pointer;
     transition: var(--main-transition);
+    margin-top: 20px;
 }
 
 .discount .form [type="submit"]:hover {
@@ -2042,6 +2129,16 @@ a {
     }
     .footer .box.footer-gallery img {
         width: 85px;
+    }
+    
+}
+
+@media (max-width: 575.9px){
+.stats h2{
+        font-size: 30px;
+    }
+.events .subscribe input{
+        width: 155px;
     }
 }
 
