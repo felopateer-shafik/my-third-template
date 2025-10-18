@@ -109,6 +109,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Initialize stats counter animation
   initStatsCounter();
+
+  // Initialize discount form validation + success toast
+  initDiscountForm();
 });
 
 // Function to setup scroll animations
@@ -117,7 +120,7 @@ function setupScrollAnimations() {
   const sections = document.querySelectorAll(
     ".articles, .gallery, .features, .testimonials, .team, .services, .skills, .work-steps, .events, .pricing, .videos, .stats"
   );
-  
+
   // Create an array of sections that should use the fade-in-up animation
   const fadeUpSections = ["features", "testimonials", "team", "gallery"];
 
@@ -127,9 +130,11 @@ function setupScrollAnimations() {
     if (title) {
       title.classList.add("fade-in");
     }
-    
+
     // Check if this section should use the fade-in-up animation
-    const shouldFadeUp = fadeUpSections.some(className => section.classList.contains(className));
+    const shouldFadeUp = fadeUpSections.some((className) =>
+      section.classList.contains(className)
+    );
 
     // Add animation to cards/boxes within each section
     const cards = section.querySelectorAll(".box, .card");
@@ -142,7 +147,7 @@ function setupScrollAnimations() {
       cards.forEach((card, index) => {
         card.classList.add("fade-in");
         card.style.setProperty("--card-index", index);
-        
+
         // Apply additional styling for the specified sections that need fade-in-up
         if (shouldFadeUp) {
           // The CSS will handle the transform based on the section class
@@ -444,4 +449,158 @@ function initStatsCounter() {
 
   // Start observing the stats section
   observer.observe(statsSection);
+}
+
+// ===== Discount form: validation + fake success message =====
+function initDiscountForm() {
+  const form = document.querySelector("#discount form");
+  if (!form) return;
+
+  const nameInput = form.querySelector('input[name="name"]');
+  const emailInput = form.querySelector('input[name="email"]');
+  const mobileInput = form.querySelector('input[name="mobile"]');
+  const messageInput = form.querySelector('textarea[name="message"]');
+
+  // Helpers
+  const validators = {
+    name: (v) => /[A-Za-zأ-ي]{2,}/.test(v.trim()),
+    email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
+    mobile: (v) => {
+      const t = v.trim();
+      // Accept 7-15 digits, optional leading +, ignore spaces/dashes/parentheses
+      const digits = t.replace(/[^\d+]/g, "");
+      const normalized = digits.startsWith("+") ? digits.slice(1) : digits;
+      return /^\d{7,15}$/.test(normalized);
+    },
+    message: (v) => v.trim().length >= 10,
+  };
+
+  function setFieldError(input, msg) {
+    input.classList.add("invalid");
+    input.setAttribute("aria-invalid", "true");
+    let err = input.nextElementSibling;
+    if (!err || !err.classList.contains("error-text")) {
+      err = document.createElement("div");
+      err.className = "error-text";
+      input.after(err);
+    }
+    err.textContent = msg;
+  }
+
+  function clearFieldError(input) {
+    input.classList.remove("invalid");
+    input.removeAttribute("aria-invalid");
+    const err = input.nextElementSibling;
+    if (err && err.classList.contains("error-text")) {
+      err.remove();
+    }
+  }
+
+  function validateField(input) {
+    const name = input.getAttribute("name");
+    const value = input.value || "";
+    clearFieldError(input);
+    let valid = true;
+    switch (name) {
+      case "name":
+        valid = validators.name(value);
+        if (!valid) setFieldError(input, "Please enter your full name.");
+        break;
+      case "email":
+        valid = validators.email(value);
+        if (!valid) setFieldError(input, "Please enter a valid email address.");
+        break;
+      case "mobile":
+        valid = validators.mobile(value);
+        if (!valid)
+          setFieldError(input, "Enter a valid phone number (7–15 digits).");
+        break;
+      case "message":
+        valid = validators.message(value);
+        if (!valid)
+          setFieldError(input, "Please provide at least 10 characters.");
+        break;
+    }
+    return valid;
+  }
+
+  // Real-time validation
+  [nameInput, emailInput, mobileInput, messageInput].forEach((el) => {
+    if (!el) return;
+    const evt = el.tagName === "TEXTAREA" ? "input" : "input";
+    el.addEventListener(evt, () => validateField(el));
+    el.addEventListener("blur", () => validateField(el));
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const allValid = [nameInput, emailInput, mobileInput, messageInput]
+      .map((el) => validateField(el))
+      .every(Boolean);
+
+    if (!allValid) {
+      // Focus first invalid field
+      const firstInvalid = form.querySelector(".invalid");
+      if (firstInvalid) firstInvalid.focus();
+      return;
+    }
+
+    // Fake success flow
+    showSuccessToast(
+      "Message sent successfully",
+      "Thanks! We'll get back to you soon."
+    );
+
+    // Reset form and validation states
+    form.reset();
+    [nameInput, emailInput, mobileInput, messageInput].forEach(clearFieldError);
+  });
+}
+
+function showSuccessToast(title, message) {
+  // Ensure only one toast at a time
+  const existing = document.querySelector(".toast-notification");
+  if (existing) existing.remove();
+
+  const toast = document.createElement("div");
+  toast.className = "toast-notification";
+  toast.setAttribute("role", "status");
+  toast.setAttribute("aria-live", "polite");
+  toast.setAttribute("aria-atomic", "true");
+
+  toast.innerHTML = `
+    <div class="toast-icon"><i class="fa-solid fa-circle-check"></i></div>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      <div class="toast-message">${message}</div>
+    </div>
+    <button class="toast-close" aria-label="Close notification">&times;</button>
+  `;
+
+  document.body.appendChild(toast);
+
+  // Animate in
+  requestAnimationFrame(() => toast.classList.add("show"));
+
+  // Focus close button for accessibility
+  const closeBtn = toast.querySelector(".toast-close");
+  setTimeout(() => {
+    if (closeBtn) closeBtn.focus();
+  }, 60);
+
+  const close = () => {
+    toast.classList.remove("show");
+    toast.classList.add("hide");
+    setTimeout(() => toast.remove(), 300);
+  };
+
+  // Auto-dismiss after 4 seconds
+  const timer = setTimeout(close, 4000);
+
+  // Manual close
+  toast.querySelector(".toast-close").addEventListener("click", () => {
+    clearTimeout(timer);
+    close();
+  });
 }
